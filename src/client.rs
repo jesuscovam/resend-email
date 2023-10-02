@@ -44,41 +44,50 @@ mod tests {
     use std::env;
     use tokio;
 
-    fn get_token() -> String {
+    struct Credentials {
+        auth_token: String,
+        test_email: String,
+    }
+
+    fn get_credentials() -> Credentials {
         dotenv().ok();
-        env::var("AUTH_TOKEN").unwrap()
+        let auth_token = env::var("AUTH_TOKEN").unwrap();
+        let test_email = env::var("TEST_EMAIL").unwrap();
+
+        Credentials {
+            auth_token,
+            test_email,
+        }
     }
 
     #[tokio::test]
     async fn send_mail_text() {
+        let credentials = get_credentials();
         let mail = MailText {
             from: "Acme <onboarding@resend.dev>",
-            to: vec!["jesuscovam@gmail.com"],
+            to: vec![&credentials.test_email],
             subject: "a",
             text: "a",
             attachments: None,
         };
 
-        let auth_token = get_token();
-
-        let client = ResendClient::new(&auth_token);
+        let client = ResendClient::new(&credentials.auth_token);
         let resp = client.send(&mail).await.unwrap();
         println!("{:?}", resp);
     }
 
     #[tokio::test]
     async fn send_mail_html() {
+        let credentials = get_credentials();
         let mail = MailHtml {
             from: "Acme <onboarding@resend.dev>",
-            to: vec!["jesuscovam@gmail.com"],
+            to: vec![&credentials.test_email],
             subject: "a",
             html: "<p>hola</p>",
             attachments: None,
         };
 
-        let auth_token = get_token();
-
-        let client = ResendClient::new(&auth_token);
+        let client = ResendClient::new(&credentials.auth_token);
         let resp = client.send(&mail).await.unwrap();
         println!("{:?}", resp);
     }
