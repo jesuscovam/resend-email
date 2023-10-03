@@ -10,6 +10,9 @@ Send emails with `client::ResendClient`
 
 Read the id of your new email from `client::Email`
 
+## Install
+`cargo add resend-email`
+
 ## Examples
 ### send text email
 ```rust
